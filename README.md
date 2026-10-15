@@ -4,7 +4,8 @@ A creator community using a static frontend and Supabase. **Early access impleme
 
 ## Implemented
 
-- Google OAuth sign-in/sign-up flow with PKCE, verified user lookup and profile creation. Provider activation is still required.
+- Email/password sign-up, sign-in, confirmation and recovery. Required dashboard settings are documented in docs/EMAIL-AUTH.md.
+- Optional Google sign-in appears when the provider is activated.
 - Supabase-backed profiles, text posts, follows, likes, comments, saved posts and private reports.
 - Creator studio with paid photo, video, download, product and service listing drafts.
 - Database-enforced ownership and private drafts; paid publication is disabled.
