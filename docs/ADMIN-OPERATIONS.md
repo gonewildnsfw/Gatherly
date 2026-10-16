@@ -38,3 +38,11 @@ Sensitive tables are in `gatherly_ops`, not exposed through the Data API, with t
 `tests/admin-rls.sql` runs synthetic transactions and rolls everything back. It verifies member denial, forged metadata rejection, private financial data, reservation idempotency, overspending, quoting, transfer confirmation, replay rejection, holds, suspensions and owner enrollment only after email verification. Unit tests also cover XSS escaping, CSV formula protection, fiat parsing and admin/member redirect destinations.
 
 Browser visual QA and a real owner sign-in were not available during implementation. Public commerce, actual payment collection, media uploads, automatic payouts, on-chain verification, tax reporting, creator identity verification and automated reconciliation are not claimed as live features.
+
+
+## Payout directory
+The Payout directory searches all Gatherly profiles by email, display name or private first/last name, with 100 records per page. It displays the current crypto destination and each creator's most recent 100 payout requests, including original destinations, quotes and transaction references. CSV exports the current page of creator balances and current destinations; use payout records for actual transfers.
+Creators save their private first and last name in earnings.html before requesting a payout. Names are self-declared, not KYC verification. Crypto is the only implemented payout method. Address/network compatibility and wallet ownership still require operator verification; never request seed phrases or private keys.
+
+## Affiliate status
+The owner's NOWPayments screenshot shows a merchant affiliate program, not a wallet signup program. No exclusive wallet, mandatory referral signup, or wallet affiliate income is enabled. Compatible crypto destinations remain supported. NOWPayments' current affiliate help describes 25% of its profit from referred merchant fees, conditional on qualified activity, and prohibits self-referrals. Provider dashboard records, rather than Gatherly balances, determine actual affiliate revenue. Confirm a wallet affiliate agreement and country eligibility before restricting the payout provider.
