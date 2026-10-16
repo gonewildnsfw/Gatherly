@@ -46,3 +46,7 @@ Creators save their private first and last name in earnings.html before requesti
 
 ## Affiliate status
 The owner's NOWPayments screenshot shows a merchant affiliate program, not a wallet signup program. No exclusive wallet, mandatory referral signup, or wallet affiliate income is enabled. Compatible crypto destinations remain supported. NOWPayments' current affiliate help describes 25% of its profit from referred merchant fees, conditional on qualified activity, and prohibits self-referrals. Provider dashboard records, rather than Gatherly balances, determine actual affiliate revenue. Confirm a wallet affiliate agreement and country eligibility before restricting the payout provider.
+
+
+## Luno-only destination policy
+New saves require provider=luno and explicit ownership attestation; new payout requests require that saved declaration. This is not Luno API verification. Existing wallet records remain legacy until the creator saves a Luno declaration; pending requests retain their original snapshots. Luno country eligibility and supported asset/network must be checked externally. Referral code AQ7HMT is displayed with disclosure and optional purchase/code use; no referral attribution or rewards are fabricated. The screenshot shows R200 BTC for qualifying South African Level 3 referrals; Luno's current terms require new verified users, code, qualifying purchase and regional eligibility. Actual referrals/rewards remain in Luno.
