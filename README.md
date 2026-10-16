@@ -24,6 +24,10 @@ python3 -m http.server 8080 --directory dist
 
 Open http://localhost:8080/. Public Supabase configuration is in `social/config.js`. Never add service-role, Google OAuth or NOWPayments secrets to the frontend or this repository.
 
+## Owner operations
+
+Administrator dashboard: `admin.html`. Creator balances and manual payout requests: `earnings.html`. See [operations guide](docs/ADMIN-OPERATIONS.md). The owner role activates only after the reserved email is verified; other accounts are members. No default administrator password is stored.
+
 ## Backend
 
 The selected project is `lokkmduplshblarcknoh`. Applied schemas are recorded in `database/`. Existing tables for other applications were preserved. Test ownership isolation with `tests/rls.sql` through a privileged SQL session; it rolls back all synthetic data.

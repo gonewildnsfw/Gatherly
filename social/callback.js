@@ -1,4 +1,5 @@
-import {completeAuthCallback,updatePassword,friendlyAuthError,authDestination} from './email-auth.mjs';
+import {signedInDestination} from './destination.mjs';
+import {completeAuthCallback,updatePassword,friendlyAuthError} from './email-auth.mjs';
 const message=document.querySelector('#auth-message');
 const originalLocation=location.href;
 history.replaceState(null,'',location.pathname);
@@ -12,6 +13,6 @@ try{
   message.after(form);
   form.onsubmit=async e=>{e.preventDefault();const d=new FormData(form);if(d.get('password')!==d.get('confirm')){message.textContent='Your passwords do not match.';return;}form.querySelector('button').disabled=true;try{await updatePassword(client,d.get('password'));form.reset();message.textContent='Password updated. Sign in with your new password.';form.remove();location.replace(new URL('social-login.html?password=updated',originalLocation).href);}catch(error){message.textContent=friendlyAuthError(error);form.querySelector('button').disabled=false;}};
  }else{
-  const {ensureProfile}=await import('./profile.js');await ensureProfile(client,user);message.textContent='Signed in. Opening your feed…';location.replace(authDestination(originalLocation));
+  const {ensureProfile}=await import('./profile.js');await ensureProfile(client,user);message.textContent='Signed in. Opening your feed…';location.replace(await signedInDestination(client,originalLocation));
  }
 }catch(error){message.textContent=error instanceof TypeError?'Could not reach sign-in services. Please try again.':error.message;}

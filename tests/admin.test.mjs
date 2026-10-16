@@ -1,0 +1,9 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {escapeHtml,csv,minorUnits,requireAdmin} from '../admin/core.mjs';
+test('operations renders untrusted content as text',()=>assert.equal(escapeHtml('<img src=x onerror="alert(1)">'),'&lt;img src=x onerror=&quot;alert(1)&quot;&gt;'));
+test('CSV exports neutralize spreadsheet formulas and quote multiline cells',()=>{const result=csv([{name:'=IMPORTDATA("evil")',note:'a\nb',amount:100}]);assert.match(result,/"'=IMPORTDATA/);assert.match(result,/"a\nb"/);assert.match(result,/"100"/);});
+test('fiat conversion uses exact minor units and rejects ambiguous amounts',()=>{assert.equal(minorUnits('12.05'),1205);assert.equal(minorUnits('0.01'),1);for(const value of ['-1','1.005','Infinity','NaN','0','1e3'])assert.throws(()=>minorUnits(value));});
+test('admin UI checks verified user and server role; user metadata is ignored',async()=>{const client={auth:{getUser:async()=>({data:{user:{id:'member',user_metadata:{role:'admin'}}}})},rpc:async()=>({data:'member'})};await assert.rejects(requireAdmin(client),/Administrator access/);client.rpc=async()=>({data:'admin'});assert.equal((await requireAdmin(client)).id,'member');client.auth.getUser=async()=>({data:{user:null}});await assert.rejects(requireAdmin(client),/Sign in/);});
+import {signedInDestination} from '../social/destination.mjs';
+test('admin and members land on fixed local destinations after authentication',async()=>{const url='https://gatherly.syrupyox129.chatgpt.site/social-login.html?next=https://evil.example';assert.equal(await signedInDestination({rpc:async()=>({data:'admin'})},url),'https://gatherly.syrupyox129.chatgpt.site/admin.html');assert.equal(await signedInDestination({rpc:async()=>({data:'member'})},url),'https://gatherly.syrupyox129.chatgpt.site/social.html');await assert.rejects(signedInDestination({rpc:async()=>({error:Error('offline')})},url));});
