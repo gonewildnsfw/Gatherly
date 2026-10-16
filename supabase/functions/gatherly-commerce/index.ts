@@ -35,8 +35,8 @@ Deno.serve(async req=>{
    return reply(await processPayment(trusted));
   }
   if(req.headers.get('origin')&&req.headers.get('origin')!==SITE)return reply({error:'Origin not allowed'},403);
-  const u=await user(req),actor=u.id;
   if(v.action==='status')return reply({checkout_enabled:live(),uploads_enabled:true});
+  const u=await user(req),actor=u.id;
   if(v.action==='purchases')return reply(await rpc('purchases',{actor}));
   if(v.action==='reserve_upload'){
    if(v.confirm_rights!=='YES')throw new Error('Confirm you own the media and have permission from everyone depicted');
