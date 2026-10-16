@@ -11,7 +11,8 @@ export function friendlyAuthError(error){
  if(code==='email_not_confirmed')return 'Please confirm your email first. You can resend the confirmation below.';
  if(code==='invalid_credentials')return 'That email and password do not match. Please try again.';
  if(code==='email_address_not_authorized')return 'Email delivery is not configured for this address yet. The site owner needs to connect a mail provider.';
- if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit'||error?.status===429)return 'Too many requests. Please wait a few minutes before trying again.';
+ if(code==='over_email_send_rate_limit')return 'Email sending limit reached. No new email was sent. Please wait before trying again. The site owner needs to connect a mail provider for reliable delivery.';
+ if(code==='over_request_rate_limit'||error?.status===429)return 'Too many requests. Please wait a few minutes before trying again.';
  if(code==='weak_password')return 'Choose a stronger password with at least 12 characters.';
  if(code==='signup_disabled')return 'New account registration is currently unavailable.';
  if(code==='user_already_exists')return 'Unable to create that account. Try signing in or resetting your password.';
