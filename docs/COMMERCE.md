@@ -20,12 +20,12 @@ The proposed `gatherly-commerce` function uses `verify_jwt=false` because NOWPay
 - Signed uploads use an opaque reserved path and no upsert. Finalization checks stored size and file signature. These checks are not malware scanning or content moderation. The operator previews the file and checks rights/consent before publication.
 - Media originals are never put in the public feed or repository. Authorized users get a 60-second signed URL; links already issued remain usable until expiration. Purchases cannot prevent screenshots, recordings or redistribution.
 - Publication and checkout fail closed unless commerce secrets and COMMERCE_ENABLED=true are set. Only photo/video listings are enabled; products, services and downloads remain drafts.
-- A creator must complete private payout name and declared Luno destination before checkout can create an order.
+- A creator must complete private creator account details and a bank or crypto payout destination before checkout can create an order.
 - Server-owned order snapshots store the ZAR price and 15% platform share. Financial figures are gross accounting allocations; provider/network fees and actual wallet liquidity require reconciliation.
 - Unique buyer/idempotency keys, one pending order per listing/buyer, hourly order limits and durable invoice IDs avoid duplicate invoice creation. Timeouts require reconciliation rather than blind retries.
 - Only authenticated provider state with a matching invoice/order/amount/currency and fully paid `finished` status can settle. Settlement is transactional and idempotent. Refunds revoke entitlements and reverse the creator ledger once; a later finished callback cannot undo the refund tombstone.
 - Existing pending invoices whose callbacks are missed require operator reconciliation; no scheduled provider reconciliation worker is deployed yet. Do not open unrestricted commerce until this operational gap and provider sandbox tests are complete.
-- Luno payout sending remains manual. Never treat a payment redirect, webhook submission or browser field as proof that a payment completed.
+- Bank and crypto payout sending remain manual. Never treat a payment redirect, webhook submission or browser field as proof that a payment completed.
 
 ## Verification
 `npm test` exercises the payment boundary including HMAC tampering, partial payments, amount and invoice mismatches and idempotency. `tests/commerce-rls.sql` runs in a rolled-back database transaction and verifies non-server RPC rejection, owner/buyer/unrelated-user access, immutable order snapshots, duplicate settlement, 15% commission allocation and refund reversal/revocation. These tests passed on the connected project. They do not substitute for provider sandbox and browser end-to-end tests.

@@ -2,6 +2,7 @@ begin;
 select set_config('gatherly.creator',gen_random_uuid()::text,true),set_config('gatherly.buyer',gen_random_uuid()::text,true),set_config('gatherly.other',gen_random_uuid()::text,true),set_config('gatherly.listing',gen_random_uuid()::text,true);
 insert into auth.users(id,email,email_confirmed_at) select current_setting('gatherly.'||x)::uuid,gen_random_uuid()::text||'@example.invalid',now() from unnest(array['creator','buyer','other']) x;
 insert into public.social_profiles(id,display_name) select current_setting('gatherly.'||x)::uuid,'Commerce Test '||x from unnest(array['creator','buyer','other']) x;
+insert into gatherly_ops.member_details(user_id,birth_date,country,mobile,address,is_creator) values(current_setting('gatherly.creator')::uuid,'1990-01-01','South Africa','+27000000000','Rollback address',true);
 insert into gatherly_ops.payout_identity values(current_setting('gatherly.creator')::uuid,'Test','Creator',now());
 insert into gatherly_ops.wallets(creator_id,address,network,asset,provider,provider_confirmed_at) values(current_setting('gatherly.creator')::uuid,'test-only-address','BITCOIN','BTC','luno',now());
 insert into public.gatherly_posts(id,author_id,title,body,kind,price_minor) values(current_setting('gatherly.listing')::uuid,current_setting('gatherly.creator')::uuid,'Test photo','Rollback only','photo',10000);

@@ -1,52 +1,28 @@
-# Gatherly administration and manual payouts
+# Gatherly operations
 
-## Owner onboarding
+See MEMBER-SETUP.md for the current account and payout setup workflow. Luno-only restrictions have been removed.
 
-The project owner’s email is reserved privately in the database using identity confirmed by the connected GitHub account. The email itself is not stored in public source code. No auth account existed when this work began. Automatic privileged account provisioning was rejected by approval review; no provisioning Edge Function was deployed.
+## Access and navigation
+The verified owner is an admin through gatherly_ops.roles. Every other account is a member. Roles are not taken from user-editable metadata. Admin sign-in lands on admin.html. Main navigation connects Home, Explore, Marketplace, Studio, Purchases, Account and Earnings. Operations section buttons remain inside the admin page.
 
-The owner account was subsequently created through the standard public Supabase signup API, with a cryptographically random initial password that was never printed or persisted. A confirmation email was requested with the password-setup page as its destination. The owner must verify the email and choose a new password on that page. A private trigger consumes the one-time owner reservation and assigns that verified account the admin role. Unverified accounts and all other accounts remain members. Roles live in a private database table; user-editable metadata cannot assign privileges. There is no shared/default/easy administrator password. Choose a memorable passphrase of at least 12 characters during password setup. Existing auth redirects and SMTP configuration still need end-to-end verification as documented in EMAIL-AUTH.md.
+## Member directory
+Search all Gatherly profiles by email, display name, name or surname. Results show account setup status, available/reserved/held/paid balances and a masked payout destination. Reveal private details reads the member’s name, birth date, country, mobile, address and current payout destination; this access is audited. Names and age declarations are not verified identity. Public profiles show only display name, bio, photo, optionally shared real name and published posts/listings.
 
-Once verified, signing in routes the administrator to `/admin.html`. Members land on `/social.html`. The account menu also shows Admin only after the server confirms the role.
+## Manual payouts
+Creators save details at account.html and a destination at earnings.html. Destination changes require a fresh Gatherly password sign-in. Bank payouts support South African ZAR accounts; crypto supports the declared asset and network on a creator-owned receive address. Luno/referral code AQ7HMT is optional.
 
-## Dashboard
+A request reserves the amount atomically from the creator balance. Each request snapshots the method and destination. Never substitute newer destination details when paying an existing request.
 
-- Overview: Gatherly profile count, seven-day registrations, recent sign-ins (not concurrent visitors), unconfirmed auth accounts, posts, drafts, reports, payout queue, recorded sales, commissions, fees, refunds, creator ledger, completed payouts and bucket usage.
-- Members: account email, confirmation state, dates, role and suspend/restore participation, with required operator notes. The directory includes all users in the shared Supabase auth project; Gatherly profile counts are shown separately. Suspension restricts community writes and payout requests; it does not revoke sessions or delete an account.
-- Finance: creator net earnings, reserved/pending payouts, completed payouts, active holds and available balance; latest 200 orders and ledger entries. Holds and releases are audited.
-- Payouts: creator, wallet/network/asset/memo snapshot, fiat amount, quote and exchange rate, separately recorded network fee, status, transaction reference and operator notes.
-- Reports/content: review reports, hide posts and restore free posts. Paid publication remains blocked.
-- Audit: latest 200 admin reads/mutations and financial record changes. CSV export neutralizes spreadsheet-formula input.
-- Setup: current launch gaps and links to Supabase and GitHub.
+1. Review the creator and original request destination.
+2. Approve bank requests for their exact ZAR amount. Crypto requests require an amount and ZAR exchange rate that reconcile with the requested balance, plus separately recorded network fees.
+3. Mark processing before making the actual transfer in your bank or wallet.
+4. Send manually, verify the destination and transfer result, then record the bank reference (minimum 6 characters) or blockchain reference (minimum 16 characters) and confirm sent.
+5. Requested/approved requests can be rejected. Processing transfers require reconciliation and cannot simply be rejected.
 
-## How manual payouts work
+App controls record transfers; they never move money. Available balance equals ledger credits minus reserved payouts, completed payouts and active holds. Negative balances block approval/processing until reconciled. Financial balances are ZAR accounting records, not bank or wallet liquidity.
 
-Creators use `/earnings.html` to save a wallet destination and request a payout from a positive recorded balance. There is no way for members to invent earnings: sensitive tables have no direct API access, and admin tools also cannot create arbitrary sale credits.
+## Other operations
+Overview shows member/registration counts, content/reports, financial totals and media storage. Members provides participation suspension with reasons. Finance shows ledger, orders and holds. Content supports private media review and publication; Reports handles moderation; Audit records operational actions. CSV exports are restricted to admins and neutralize spreadsheet formulas.
 
-1. Verified settlement must first credit the creator ledger. The existing payment boundary is NOT yet connected to this ledger. Until that integration is built and verified, balances remain zero.
-2. A payout request atomically reserves the requested ZAR amount under a per-creator transaction lock. Repeated request keys do not create another payout. Insufficient funds are rejected. Destination details are snapshotted so a later wallet edit cannot reroute a pending payout.
-3. Admin reviews the destination, asset, network, memo and available balance, enters the crypto amount and ZAR-per-unit exchange rate, and approves. The quote must match the fiat amount to within one cent. Recorded network fees are additional operator costs; they are not silently deducted from the creator’s quote.
-4. Mark processing BEFORE sending a manual transfer in your own wallet. These app controls do not send funds. Processing transfers cannot simply be rejected, because an external transfer may already exist.
-5. After checking the transfer externally, record its blockchain reference and explicitly confirm that it was sent. The database requires the prior processing state and a unique network/reference combination. A second paid transition is rejected.
-6. Requested/approved requests may be rejected with a reason, releasing their reservation. Paid requests cannot be edited back to pending. Failed external transfers in processing need controlled reconciliation; this release path is not automated.
-
-Available balance = net creator ledger credits − requested/approved/processing reservations − completed payouts − active holds. If refunds make a balance negative, the dashboard highlights it and further approval/processing is blocked until reconciliation. The ledger and order snapshots are service-only data. The financial totals are not proof of actual crypto-wallet liquidity, blockchain settlement or tax profit.
-
-## Security and verification
-
-Sensitive tables are in `gatherly_ops`, not exposed through the Data API, with table permissions revoked, RLS enabled and explicit deny policies. Public RPC wrappers are security invoker; guarded private functions implement the narrowly scoped privileged operations. Search paths are fixed. Every admin operation checks a live role record and verified email instead of trusting browser state or user metadata. The reserved owner cannot be suspended through the UI.
-
-`tests/admin-rls.sql` runs synthetic transactions and rolls everything back. It verifies member denial, forged metadata rejection, private financial data, reservation idempotency, overspending, quoting, transfer confirmation, replay rejection, holds, suspensions and owner enrollment only after email verification. Unit tests also cover XSS escaping, CSV formula protection, fiat parsing and admin/member redirect destinations.
-
-Browser visual QA and a real owner sign-in were not available during implementation. Public commerce, actual payment collection, media uploads, automatic payouts, on-chain verification, tax reporting, creator identity verification and automated reconciliation are not claimed as live features.
-
-
-## Payout directory
-The Payout directory searches all Gatherly profiles by email, display name or private first/last name, with 100 records per page. It displays the current crypto destination and each creator's most recent 100 payout requests, including original destinations, quotes and transaction references. CSV exports the current page of creator balances and current destinations; use payout records for actual transfers.
-Creators save their private first and last name in earnings.html before requesting a payout. Names are self-declared, not KYC verification. Crypto is the only implemented payout method. Address/network compatibility and wallet ownership still require operator verification; never request seed phrases or private keys.
-
-## Affiliate status
-The owner's NOWPayments screenshot shows a merchant affiliate program, not a wallet signup program. No exclusive wallet, mandatory referral signup, or wallet affiliate income is enabled. Compatible crypto destinations remain supported. NOWPayments' current affiliate help describes 25% of its profit from referred merchant fees, conditional on qualified activity, and prohibits self-referrals. Provider dashboard records, rather than Gatherly balances, determine actual affiliate revenue. Confirm a wallet affiliate agreement and country eligibility before restricting the payout provider.
-
-
-## Luno-only destination policy
-New saves require provider=luno and explicit ownership attestation; new payout requests require that saved declaration. This is not Luno API verification. Existing wallet records remain legacy until the creator saves a Luno declaration; pending requests retain their original snapshots. Luno country eligibility and supported asset/network must be checked externally. Referral code AQ7HMT is displayed with disclosure and optional purchase/code use; no referral attribution or rewards are fabricated. The screenshot shows R200 BTC for qualifying South African Level 3 referrals; Luno's current terms require new verified users, code, qualifying purchase and regional eligibility. Actual referrals/rewards remain in Luno.
+## Validation and remaining limits
+37 Node tests pass; rollback-only database tests check authorization, private information, bank transfers, payout snapshots, reauthentication, checkout idempotency and entitlement revocation. Static build excludes server code/secrets. Browser visual QA was unavailable. A real provider payment and buyer unlock still require verification. Automatic transfers, independent bank/wallet ownership verification, age/identity verification and automated reconciliation are not implemented.
